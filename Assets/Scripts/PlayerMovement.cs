@@ -1,6 +1,7 @@
 using UnityEngine;
+using Unity.Netcode;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
     Rigidbody rb;
     Animator anim;
@@ -10,16 +11,23 @@ public class PlayerMovement : MonoBehaviour
     public float maxVelocityChange = 10f;
     public bool crouching;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public override void OnNetworkSpawn()
     {
         rb = GetComponent<Rigidbody>();
         anim = GetComponent<Animator>();
     }
 
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    void Start()
+    {
+
+    }
+
     // Update is called once per frame
     void Update()
     {
+        if (!IsOwner)
+            return;
         input = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         input.Normalize();
 
@@ -48,8 +56,8 @@ public class PlayerMovement : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            rb.AddForce(new Vector3(0,500,0));
-            
+            rb.AddForce(new Vector3(0, 500, 0));
+
         }
 
         if (rb.linearVelocity.y != 0)
@@ -87,7 +95,7 @@ public class PlayerMovement : MonoBehaviour
 
             return velocityChange;
 
-            
+
         }
 
         // Return zero movement if input magnitude is too low
